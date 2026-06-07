@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuizMaster - Platforma Quizowa</title>
+    <style>
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-card: #ffffff;
+            --text-main: #2d3748;
+            --text-muted: #718096;
+            --accent: #6b46c1;
+            --accent-hover: #553c9a;
+            --success: #38a169;
+            --danger: #e53e3e;
+            --warning: #dd6b20;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            --transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1a202c;
+            --bg-card: #2d3748;
+            --text-main: #f7fafc;
+            --text-muted: #a0aec0;
+            --accent: #9f7aea;
+            --accent-hover: #b794f4;
+            --success: #48bb78;
+            --danger: #f56565;
+            --warning: #ed8936;
+            --border: #4a5568;
+            --shadow: 0 4px 6px -1px rgba(0,0,0,0.5);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: var(--transition);
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            background: var(--bg-card);
+            border-radius: 16px;
+            box-shadow: var(--shadow);
+            padding: 30px;
+            transition: var(--transition);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            display: none;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3 {
+            margin-bottom: 20px;
+            text-align: center;
+            color: var(--accent);
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .btn {
+            display: inline-block;
+            width: 100%;
+            padding: 14px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border);
+        }
+
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { filter: brightness(0.9); }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { filter: brightness(0.9); }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            background-color: var(--bg-card);
+            color: var(--text-main);
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            transition: var(--transition);
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        /* Siatka menu */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .menu-grid .btn { margin-bottom: 0; }
+        .full-width { grid-column: span 2; }
+
+        /* Quiz UI */
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+        }
+        .progress-bar-container {
+            width: 100%;
+            height: 12px;
+            background-color: var(--border);
+            border-radius: 6px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .timer-container {
+            width: 100%;
+            height: 6px;
+            background-color: var(--border);
+            margin-bottom: 20px;
+        }
+        .timer-bar {
+            height: 100%;
+            background-color: var(--warning);
+            width: 100%;
+        }
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        .answer-btn {
+            padding: 15px;
+            background-color: var(--bg-primary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-align: left;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--text-main);
+        }
+        .answer-btn:hover {
+            border-color: var(--accent);
+            background-color: var(--bg-card);
+        }
+
+        /* Profile & Stats */
+        .profile-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        .avatar-main {
+            font-size: 40px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-card);
+            border-radius: 50%;
+            border: 2px solid var(--accent);
+        }
+        .xp-bar-container {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            margin-top: 5px;
+        }
+        .xp-bar {
+            height: 100%;
+            background: var(--success);
+            width: 0%;
+        }
+
+        /* Tabele i Listy */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        th { color: var(--accent); }
+
+        .list-item {
+            padding: 12px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .flex-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        /* Osiągnięcia i Awatary */
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .avatar-option {
+            font-size: 30px;
+            text-align: center;
+            padding: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            border-radius: 8px;
+        }
+        .avatar-option.selected {
+            border-color: var(--accent);
+            background: var(--bg-primary);
+        }
+        .badge {
+            padding: 10px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            opacity: 0.4;
+            transition: var(--transition);
+        }
+        .badge.unlocked {
+            opacity: 1;
+            border: 2px solid var(--warning);
+            font-weight: bold;
+        }
+
+        /* Responsywność */
+        @media(max-width: 600px) {
+            .menu-grid { grid-template-columns: 1fr; }
+            .menu-grid .full-width { grid-column: span 1; }
+            .grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- 1. EKRAN LOGOWANIA -->
+        <div id="screen-login" class="screen active">
+            <h1>QuizMaster</h1>
+            <p style="text-align: center; color: var(--text-muted);">Witaj w świecie wiedzy! Wpisz swój pseudonim, aby rozpocząć.</p>
+            <label for="username-input">Twój Nick:</label>
+            <input type="text" id="username-input" placeholder="Wpisz nick...">
+            <button class="btn" onclick="app.login()">Zapisz i wejdź</button>
+        </div>
+
+        <!-- 2. MENU GŁÓWNE -->
+        <div id="screen-menu" class="screen">
+            <div class="profile-section">
+                <div id="user-avatar" class="avatar-main">👤</div>
+                <div style="flex-grow: 1;">
+                    <div style="display: flex; justify-content: space-between; font-weight: bold;">
+                        <span id="user-display-name">Gracz</span>
+                        <span style="color: var(--accent);" id="user-level">Poziom 1</span>
+                    </div>
+                    <div class="xp-bar-container">
+                        <div id="user-xp-bar" class="xp-bar"></div>
+                    </div>
+                    <small style="color: var(--text-muted);" id="user-xp-text">0 / 100 XP</small>
+                </div>
+            </div>
+            
+            <h1>Menu Główne</h1>
